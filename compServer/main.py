@@ -1,12 +1,12 @@
 import json
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 from parseComp import PDFParser
-
+pdf_parser = PDFParser('.IT-Policy.pdf')
+pdf_text = pdf_parser.parse_pdf_to_text()
 def generate_problem_solution(log_data, model, tokenizer):
-    pdf_parser = PDFParser('.IT-Policy.pdf')
-    pdf_text = pdf_parser.parse_pdf_to_text()
-    prompt = f"Log Line {log_data['logline']} indicates a problem with user {log_data['userId']} attempting to {log_data['action']} with access {log_data['access']}. Please provide insights on how this log line issue relates to the compliance document.\n\nCompliance Document Content:\n{pdf_text}\n\nAnswer:"    
-    input_ids = tokenizer.encode(prompt, return_tensors="pt")
+    prompt = f"Log Line {log_data['logline']} indicates a problem with user {log_data['userId']} attempting to {log_data['action']} with access {log_data['access']}. Please provide insights on how this log line issue relates to the compliance document.\n\nAnswer:"  
+    input_ids = tokenizer(pdf_text, return_tensors="pt").input_ids  
+    input_ids = tokenizer(prompt, return_tensors="pt").input_ids
     
     generated_ids = model.generate(
         input_ids,
